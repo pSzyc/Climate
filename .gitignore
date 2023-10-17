@@ -1,0 +1,7 @@
+*.pdf
+**/__pycache__
+*.txt
+*.csv
+selenium
+*.joblib
+*.xlsx
