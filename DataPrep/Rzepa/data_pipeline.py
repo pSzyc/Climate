@@ -1,6 +1,5 @@
 import re
 
-
 def splitter(text):
     re_expr = "([A-Z]*[a-z]+)([A-Z][a-z]*)"
     matches = re.findall(re_expr, text)
