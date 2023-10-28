@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 from pathlib import Path
 
 source_dict = {
@@ -24,7 +23,6 @@ for coprus in source_dict.keys():
     df_non_eco['label'] = 0
     df = pd.concat([df_eco[df_eco['rank'] != 4], df_non_eco])
     df['source'] = source_dict[coprus]
-    #df = df[['id','source','text','title', 'clean_text','vectorized', 'clean_title','label', 'date']]
     df_list.append(df)
     
 dataset = pd.concat(df_list)
