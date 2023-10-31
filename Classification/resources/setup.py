@@ -29,18 +29,12 @@ class config:
         self.STOPWORDS = STOPWORDS
 
 
-def get_current_data(corpus, drive_path):
-    df_eco = pd.read_csv(drive_path / corpus / "eco_result.csv", index_col=['id', 'source'], parse_dates=['date'])
-    df_non_eco = pd.read_csv(drive_path / corpus / "non_eco_result.csv", index_col = ['id', 'source'], parse_dates=['date'])
-    df_eco['label'] = 1
-    df_non_eco['label'] = 0
-    return df_eco,df_non_eco
+
 
 def get_setup():
     corpus = input("Please provide corpus:")
-    drive_path = input("Please provide drive path:")
-    drive_path = Path(drive_path)
-    files_path = Path("/home/hombre/Code/Climate Project/Classification/files")
+    drive_path = Path("/run/user/1000/gvfs/google-drive:host=gmail.com,user=przemek.7678/Colab Notebooks")
+    files_path = Path("files")
     stopwords = pd.read_csv( files_path / 'polish_stopwords.txt', header=None)
     STOPWORDS = set([word.rstrip() for word in stopwords[0]])
     configuration = config(corpus, drive_path, files_path, STOPWORDS)

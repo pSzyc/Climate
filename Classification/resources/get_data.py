@@ -1,6 +1,8 @@
 import pandas as pd
 
-def get_current_data(corpus, drive_path):
+def get_current_data(configuration):
+    drive_path = configuration.drive_path
+    corpus = configuration.corpus
     df_eco = pd.read_csv(drive_path / corpus / "eco_result.csv", index_col=['id', 'source'], parse_dates=['date'])
     df_non_eco = pd.read_csv(drive_path / corpus / "non_eco_result.csv", index_col = ['id', 'source'], parse_dates=['date'])
     df_eco['label'] = 1
@@ -21,12 +23,11 @@ def make_dataset(configuration, df_eco, df_non_eco):
         df_7 = pd.read_csv(configuration.drive_path  / "dataset_7.csv", index_col = ['id', 'source'])
         df_sample = df_7.sample(n = 10000)
         df = pd.concat([df_eco, df_non_eco, df_sample])
-    return df_eco, df
+    return df
 
 def get_rest_of_data(configuration):
     if configuration.corpus == "rzepa":
         df_rest = pd.read_csv(configuration.drive_path / configuration.corpus / "results.csv", index_col = ['id', 'source'], parse_dates=['date'])
-    #df_rest = df_rest[~df_rest.index.isin(df_5.index)]
     else: 
         df_rest = pd.read_csv(configuration.drive_path / configuration.corpus / "results.csv", index_col = ['id', 'source'], parse_dates=['date'])
     return df_rest

@@ -110,7 +110,8 @@ def vectorized_retriver(row):
 
   return row
 
-def vectorize_dataset(df, METAFEATURES):
+def vectorize_dataset(configuration, df):
+    METAFEATURES = configuration.METAFEATURES
     df_train, df_test = train_test_split(df, test_size=0.1)
     scaler = StandardScaler()
     meta_train = scaler.fit_transform(df_train[METAFEATURES])
@@ -126,8 +127,8 @@ def vectorize_dataset(df, METAFEATURES):
     test_ngram_x  = np.concatenate([text_test, meta_test], axis=1)
     return train_ngram_x, train_y, test_ngram_x, test_y, scaler, vectorizer, selector
 
-def preprocess(df, STOPWORDS, corpus):
-
+def preprocess(df, configuration):
+  STOPWORDS = configuration.STOPWORDS
   #if corpus not in ['wprost', 'dorzeczy']:
   #
   #  df['department'] = df['department'].replace("None", "Inne")
