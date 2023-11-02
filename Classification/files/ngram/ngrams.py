@@ -5,7 +5,7 @@ from pathlib import Path
 from collections import defaultdict
 
 nlp = spacy.load('pl_core_news_sm')
-files_path = Path("/home/ps/Code/Climate/Classification/files")
+files_path = Path("../../files")
 stopwords = pd.read_csv(files_path / 'polish_stopwords.txt', header=None)
 STOPWORDS = set([word.rstrip() for word in stopwords[0]])
 REPLACE_BY_SPACE_RE = re.compile('[/(){}\[\]\|@,;\.]')
