@@ -12,14 +12,7 @@ def get_current_data(configuration):
 
 def make_dataset(configuration, df_eco, df_non_eco):
     if configuration.corpus == "rzepa":
-        df_5 = pd.read_csv(configuration.drive_path  / "dataset_6_all.csv", index_col = ['id', 'source'])
-        df_5.rename(columns={ "class": "label"}, inplace=True)
-        df_5 = df_5[df_5['translated'] == 0]
-        df_eco['translated'] = 0
-        df_non_eco['translated'] = 0
-        df_eco = df_eco[~df_eco.index.isin(df_5.index)]
-        df_non_eco = df_non_eco[~df_non_eco.index.isin(df_5.index)].sample(n = len(df_eco))
-        df = pd.concat([df_eco, df_non_eco, df_5])
+        df = pd.concat([df_eco, df_non_eco])
     else:
         df_7 = pd.read_csv(configuration.drive_path  / "dataset_7.csv", index_col = ['id', 'source'])
         df_sample = df_7.sample(n = 10000)

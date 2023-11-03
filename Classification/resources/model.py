@@ -20,7 +20,7 @@ def chunk_it_predictions(model, data, size, vectorizer, selector, scaler, config
     chunks = ceil(len(data) / size)
     for i in tqdm(range(chunks)):
         chunk = data.iloc[i * size : (i+1) * size]
-        chunk = preprocess(chunk, configuration.STOPWORDS, configuration.corpus)
+        chunk = preprocess(configuration, chunk)
         meta_rest = scaler.transform(chunk[configuration.METAFEATURES])
         rest_text = vectorize(chunk['clean_text'], vectorizer, selector)
         rest_ngram_x =  np.concatenate([rest_text, meta_rest], axis=1)
@@ -44,4 +44,4 @@ def determine_ranks_and_save(configuration, df_eco, df_rest, proba):
 
     df_rest = df_rest[df_eco.columns.values]
     df_final = pd.concat([df_rest[df_rest['rank'] != 0], df_eco])
-    df_final.to_csv(configuration.drive_path / configuration.corpus /  f"results.csv")
+    df_final.to_csv("eco_all.csv")
