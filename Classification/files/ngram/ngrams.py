@@ -67,12 +67,12 @@ def get_eco_vocab():
     eco_dict = df_eco.set_index("phrase").to_dict()['count']
     return  dict(zip(list(eco_dict.keys()), range(len(eco_dict.keys()))))
 
-def save_rest_ngrams(df, n = 400):
+def save_rest_ngrams(df, n = 400, file = "rest"):
     df_eco_unigrams = ngram_counter(1, df)
     df_eco_bigrams = ngram_counter(2, df)
     df_eco_trigrams = ngram_counter(3, df)
     eco_vocab = get_eco_vocab()
 
-    df_eco_unigrams[~df_eco_unigrams[0].isin(eco_vocab.keys())].iloc[:n].to_csv(files_path/ "ngram/uni_rest.csv", index = False)
-    df_eco_bigrams[~df_eco_bigrams[0].isin(eco_vocab.keys())].iloc[:n].to_csv(files_path/ "ngram/bi_rest.csv", index = False)
-    df_eco_trigrams[~df_eco_trigrams[0].isin(eco_vocab.keys())].iloc[:n].to_csv(files_path/ "ngram/tri_rest.csv", index = False)
+    df_eco_unigrams[~df_eco_unigrams[0].isin(eco_vocab.keys())].iloc[:n].to_csv(files_path/ f"ngram/uni_{file}.csv", index = False)
+    df_eco_bigrams[~df_eco_bigrams[0].isin(eco_vocab.keys())].iloc[:n].to_csv(files_path/ f"ngram/bi_{file}.csv", index = False)
+    df_eco_trigrams[~df_eco_trigrams[0].isin(eco_vocab.keys())].iloc[:n].to_csv(files_path/ f"ngram/tri_{file}.csv", index = False)
