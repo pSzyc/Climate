@@ -11,10 +11,14 @@ def get_current_data(configuration):
     return df_eco, df_non_eco, df_rest
 
 def make_dataset(configuration, df_eco, df_non_eco):
-    if configuration.corpus == "rzepa":
+    drive_path = configuration.drive_path
+    corpus = configuration.corpus
+    if corpus == "rzepa":
         df = pd.concat([df_eco, df_non_eco])
     else:
-        df_7 = pd.read_csv(configuration.drive_path  / "dataset_7.csv", index_col = ['id', 'source'])
-        df_sample = df_7.sample(n = 10000)
-        df = pd.concat([df_eco, df_non_eco, df_sample])
+        df_eco_rzepa = pd.read_csv(drive_path / "rzepa" / "eco_result.csv", index_col=['id', 'source'], parse_dates=['date'])
+        df_non_eco_rzepa = pd.read_csv(drive_path / "rzepa" / "non_eco_result.csv", index_col = ['id', 'source'], parse_dates=['date'])
+        df_eco_rzepa['label'] = 1
+        df_non_eco_rzepa['label'] = 0
+        df = pd.concat([df_eco, df_non_eco, df_eco_rzepa, df_non_eco_rzepa])
     return df
