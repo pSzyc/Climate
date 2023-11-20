@@ -28,7 +28,7 @@ def data_pipeline(corpus):
     df_rest['proba'] = proba
     return pd.concat([df_rest, df_eco])
 
-def eco_selector(df):
+def eco_selector(df, ease=False):
     df['klimat_count'] = df['ngram_sum'] * df['klimat']
     condition_list_1 = [
         df['ngram_sum_squared_to_total'] > 0.75,
@@ -47,12 +47,22 @@ def eco_selector(df):
     ]
     condition_list_4 = [
         df['klimat_count'] > 0,
-        df['proba'] > 0.8,
+        df['proba'] > 0.5,
         df['weak_count'] < 0.5,
         df['num_words'] > 2
     ]
-    selector = lambda condition_list: reduce(lambda x, y: x & y, condition_list)
-    mask = selector(condition_list_1) | selector(condition_list_2) | selector(condition_list_3) | selector(condition_list_4)
+    condition_list_5 = [
+        df['proba'] > 0.75,
+        df['weak_count'] < 0.8,
+        df['num_words'] > 2
+    ]
+    conditions_all = [condition_list_1, condition_list_2, condition_list_3, condition_list_4]
+    if ease:
+        conditions_all.append(condition_list_5)
+    selector = lambda c_list: reduce(lambda x, y: x & y, c_list)
+    mask_maker = lambda conditions_list: reduce(lambda x, y: selector(x) | selector(y), conditions_list)
+    mask = mask_maker(conditions_all)
+    print(len(df), len(df[mask]))
     return df[mask]
 
 def filter_by_conditions(df, condition_list):
