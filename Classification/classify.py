@@ -26,9 +26,10 @@ def data_pipeline(corpus):
     with pd.option_context('mode.chained_assignment', None):
         proba = np.concatenate([x for x in chunk_it_predictions(lr, df_rest, 500, vectorizer, selector, scaler, configuration)])
     df_rest['proba'] = proba
-    return pd.concat([df_rest, df_eco])
+    df_rest = df_rest[~df_rest.index.isin(df_eco.index)]
+    return df_rest, df_eco
 
-def eco_selector(df, ease=False):
+def eco_selector(df, ease=True):
     df['klimat_count'] = df['ngram_sum'] * df['klimat']
     condition_list_1 = [
         df['ngram_sum_squared_to_total'] > 0.75,
@@ -44,6 +45,7 @@ def eco_selector(df, ease=False):
     condition_list_3 = [
         df['klimat_count'] > 2,
         df['ngram_sum_squared_to_total'] > 0.33,
+        df['proba'] > 0.5
     ]
     condition_list_4 = [
         df['klimat_count'] > 0,
@@ -52,13 +54,17 @@ def eco_selector(df, ease=False):
         df['num_words'] > 2
     ]
     condition_list_5 = [
-        df['proba'] > 0.75,
+        df['proba'] > 0.7,
         df['weak_count'] < 0.8,
         df['num_words'] > 2
     ]
+    condition_list_6 = [
+        df['proba'] > 0.9,
+        df['klimat_count'] > 0,
+    ]
     conditions_all = [condition_list_1, condition_list_2, condition_list_3, condition_list_4]
     if ease:
-        conditions_all.append(condition_list_5)
+        conditions_all.extend([condition_list_5, condition_list_6])
     selector = lambda c_list: reduce(lambda x, y: x & y, c_list)
     mask_maker = lambda conditions_list: reduce(lambda x, y: selector(x) | selector(y), conditions_list)
     mask = mask_maker(conditions_all)
