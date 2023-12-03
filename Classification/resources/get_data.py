@@ -12,6 +12,15 @@ def get_current_data(configuration):
     df_eco = df_eco.fillna("None")
     df_non_eco = df_non_eco.fillna("None")
     df_rest = df_rest.fillna("None")
+    if corpus in ['newsweek', 'wprost']:
+        df_eco = df_eco.rename(columns={"author 1": 'author'})
+        df_non_eco = df_non_eco.rename(columns={"author 1": 'author'})
+        df_rest = df_rest.rename(columns={"author 1": 'author'})
+    drastic = corpus == 'wyborcza'
+    df_eco = validate(df_eco, drastic)
+    df_non_eco = validate(df_non_eco, drastic)
+    df_rest = validate(df_rest, drastic)
+
     return df_eco, df_non_eco, df_rest
 
 def make_dataset(configuration, df_eco, df_non_eco):
@@ -28,6 +37,13 @@ def make_dataset(configuration, df_eco, df_non_eco):
         if corpus in ['gpc', 'wyborcza']:
             df_eco_rzepa = df_eco_rzepa.sample(1000)
             df_non_eco_rzepa = df_non_eco_rzepa.sample(1000)
-            df_non_eco = df_non_eco.sample(3000)
+            df_non_eco = df_non_eco.sample(2000)
         df = pd.concat([df_eco, df_eco, df_non_eco, df_non_eco, df_eco_rzepa, df_non_eco_rzepa])
+    df = validate(df)
+    return df
+
+def validate(df, drastic):
+    if drastic:
+        df = df.drop_duplicates(subset=['title', 'author'])
+    df = df.drop_duplicates(subset='text')
     return df

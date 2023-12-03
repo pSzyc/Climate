@@ -29,42 +29,61 @@ def data_pipeline(corpus):
     df_rest = df_rest[~df_rest.index.isin(df_eco.index)]
     return df_rest, df_eco
 
-def eco_selector(df, ease=True):
+def eco_selector(df, main=True):
     df['klimat_count'] = df['ngram_sum'] * df['klimat']
-    condition_list_1 = [
-        df['ngram_sum_squared_to_total'] > 0.75,
-        df['proba'] > 0.5,
-        df['weak_count'] < 0.5
-    ]
-    condition_list_2 = [
-        df['weak_count']  < 0.3,
-        df['ngram_sum_squared_to_total'] > 0.5,
-        df['num_words'] > 2,
-        df['proba'] > 0.5
-    ]
-    condition_list_3 = [
-        df['klimat_count'] > 2,
-        df['ngram_sum_squared_to_total'] > 0.33,
-        df['proba'] > 0.5
-    ]
-    condition_list_4 = [
-        df['klimat_count'] > 0,
-        df['proba'] > 0.5,
-        df['weak_count'] < 0.5,
-        df['num_words'] > 2
-    ]
-    condition_list_5 = [
-        df['proba'] > 0.7,
-        df['weak_count'] < 0.8,
-        df['num_words'] > 2
-    ]
-    condition_list_6 = [
-        df['proba'] > 0.9,
-        df['klimat_count'] > 0,
-    ]
-    conditions_all = [condition_list_1, condition_list_2, condition_list_3, condition_list_4]
-    if ease:
-        conditions_all.extend([condition_list_5, condition_list_6])
+    if main:
+        condition_list_1 = [
+            df['ngram_sum_squared_to_total'] > 0.75,
+            df['proba'] > 0.5,
+            df['weak_count'] < 0.5
+        ]
+        condition_list_2 = [
+            df['weak_count']  < 0.3,
+            df['ngram_sum_squared_to_total'] > 0.5,
+            df['num_words'] > 2,
+            df['proba'] > 0.5
+        ]
+        condition_list_3 = [
+            df['klimat_count'] > 2,
+            df['ngram_sum_squared_to_total'] > 0.33,
+            df['proba'] > 0.5
+        ]
+        condition_list_4 = [
+            df['klimat_count'] > 0,
+            df['proba'] > 0.5,
+            df['weak_count'] < 0.5,
+            df['num_words'] > 2
+        ]
+        condition_list_5 = [
+            df['proba'] > 0.7,
+            df['weak_count'] < 0.8,
+            df['num_words'] > 2
+        ]
+        condition_list_6 = [
+            df['proba'] > 0.9,
+            df['klimat_count'] > 0,
+        ]
+        conditions_all = [condition_list_1, condition_list_2, condition_list_3, condition_list_4,condition_list_5, condition_list_6]
+    else:
+        condition_list_1 = [
+            (df['weak_count'] < 0.5),
+            (df['proba'] > 0.9)
+        ]
+        condition_list_2 = [
+            df['proba'] > 0.8,
+            df['klimat_count'] > 0,
+        ]
+        condition_list_3 = [
+            (df['ngram_sum_squared_to_total'] > 1),
+            (df['weak_count'] < 0.5)
+        ]
+        condition_list_4 = [
+            (df['ngram_sum_squared_to_total'] > 0.5),
+            (df['proba'] > 0.5),
+            (df['weak_count'] < 0.66),
+            (df['num_words'] > 3)
+        ]
+        conditions_all = [condition_list_1, condition_list_2, condition_list_3, condition_list_4]
     selector = lambda c_list: reduce(lambda x, y: x & y, c_list)
     mask_maker = lambda conditions_list: reduce(lambda x, y: selector(x) | selector(y), conditions_list)
     mask = mask_maker(conditions_all)
