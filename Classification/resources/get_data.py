@@ -39,10 +39,13 @@ def make_dataset(configuration, df_eco, df_non_eco):
             df_non_eco_rzepa = df_non_eco_rzepa.sample(1000)
             df_non_eco = df_non_eco.sample(2000)
         df = pd.concat([df_eco, df_eco, df_non_eco, df_non_eco, df_eco_rzepa, df_non_eco_rzepa])
-    df = validate(df)
+    if corpus == 'wyborcza':
+        df = validate(df, drastic = True)
+    else:
+        df = validate(df)
     return df
 
-def validate(df, drastic):
+def validate(df, drastic = False):
     if drastic:
         df = df.drop_duplicates(subset=['title', 'author'])
     df = df.drop_duplicates(subset='text')
