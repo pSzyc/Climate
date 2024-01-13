@@ -1,14 +1,21 @@
+#!/usr/bin/env python3
 from bs4 import BeautifulSoup
 import requests
 import csv
 import os
+from selenium.webdriver.chrome.options import Options
+from selenium import webdriver
+from tqdm import tqdm
+chrome_options = Options()
+chrome_options.add_argument("user-data-dir=selenium")
+driver = webdriver.Chrome(options=chrome_options)
 
 html_parser = {
     'title': 'art-title',
     'department': 'art-product-name',
     'author': 'art-author',
     'date': 'art-datetime',
-    'text': 'art-text'
+    'text': 'art_paragraph'
     }
 
 def get_articles(url):
@@ -25,10 +32,15 @@ def get_article_data(link):
         'text': None,
         'link': link
     }
-    soup = BeautifulSoup(requests.get(link).text, "html.parser")
+    driver.get(link)
+    soup = BeautifulSoup(driver.page_source, "html.parser")
     for key, value in html_parser.items():
         try:
-            data[key] = soup.find(class_=value).text.replace('\n',"").strip()
+            if key == 'text':
+                paragraphs = soup.find_all(class_=value)
+                data[key] = " ".join([paragraph.text for  paragraph in paragraphs]).replace('\n',"").strip()
+            else:
+                data[key] = soup.find(class_=value).text.replace('\n',"").strip()
         except:
             print(f"Key: {key} not found in {link}")
     return data
@@ -36,21 +48,18 @@ def get_article_data(link):
 
 csv_file = 'wyborcza.csv'
 if not os.path.exists(csv_file):
-    print("Creating new csv file " + csv_file)
+    print(f"Creating file {csv_file}")
     column_names = ['Title', 'Department', 'Author', 'Date', 'Text', 'Link']
     with open(csv_file, 'w') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(column_names)
 else:
-    print("Appending to existing csv file " + csv_file)
+    print(f"Appending to {csv_file}")
 
-page = 0
-with open('wyborcza.csv', 'a', newline='') as file:
+with open(csv_file, 'a', newline='') as file:
     writer = csv.writer(file)
-    while True:
-        print(f"Page: {page}")
-        link_page = f'https://classic.wyborcza.pl/archiwumGW/0,160510.html?searchForm=&datePeriod=0&initDate=2015-01-01&endDate=2017-01-01&publicationsString=1&author=&page={page}&sort=OLDEST'
-        
+    for page in tqdm(range(10223)):
+        link_page = f'https://classic.wyborcza.pl/archiwumGW/0,160510.html?searchForm=&datePeriod=0&initDate=2019-01-01&endDate=2023-01-01&publicationsString=1%3B5&author=&page={page}&sort=OLDEST'
         data_list = []    
         articles = get_articles(link_page)
         if len(articles) == 0:
@@ -61,6 +70,4 @@ with open('wyborcza.csv', 'a', newline='') as file:
             data = get_article_data(link)
             data_list.append(data)
         for data in data_list:
-            print(f"{data['title']}/{data['article']}")
             writer.writerow([data['title'], data['department'], data['author'], data['date'], data['text'], data['link']])    
-        page += 1
