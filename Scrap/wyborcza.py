@@ -3,12 +3,11 @@ from bs4 import BeautifulSoup
 import requests
 import csv
 import os
-from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
 from tqdm import tqdm
-chrome_options = Options()
-chrome_options.add_argument("user-data-dir=selenium")
-driver = webdriver.Chrome(options=chrome_options)
+driver = webdriver.Chrome()
+driver.get('https://login.wyborcza.pl/')
+input("Press Enter to continue...")
 
 html_parser = {
     'title': 'art-title',
@@ -18,7 +17,7 @@ html_parser = {
     'text': 'art_paragraph'
     }
 
-def get_articles(url):
+def list_articles(url):
     soup = BeautifulSoup(requests.get(url).text, "html.parser")
     articles = soup.find_all(class_='result-item-link',href=True)
     return articles
@@ -45,6 +44,14 @@ def get_article_data(link):
             print(f"Key: {key} not found in {link}")
     return data
 
+def process_page(link_page):
+    data_list = []    
+    articles = list_articles(link_page)
+    for article in articles:
+        link='https://classic.wyborcza.pl/archiwumGW/'+article['href']
+        data = get_article_data(link)
+        data_list.append(data)
+    return data_list
 
 csv_file = 'wyborcza.csv'
 if not os.path.exists(csv_file):
@@ -58,16 +65,8 @@ else:
 
 with open(csv_file, 'a', newline='') as file:
     writer = csv.writer(file)
-    for page in tqdm(range(10223)):
+    for page in tqdm(range(10)):
         link_page = f'https://classic.wyborcza.pl/archiwumGW/0,160510.html?searchForm=&datePeriod=0&initDate=2019-01-01&endDate=2023-01-01&publicationsString=1%3B5&author=&page={page}&sort=OLDEST'
-        data_list = []    
-        articles = get_articles(link_page)
-        if len(articles) == 0:
-            print("No articles found")
-            break
-        for article in articles:
-            link='https://classic.wyborcza.pl/archiwumGW/'+article['href']
-            data = get_article_data(link)
-            data_list.append(data)
+        data_list = process_page(link_page)
         for data in data_list:
             writer.writerow([data['title'], data['department'], data['author'], data['date'], data['text'], data['link']])    
