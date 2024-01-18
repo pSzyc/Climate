@@ -5,9 +5,13 @@ import csv
 import os
 from selenium import webdriver
 from tqdm import tqdm
-driver = webdriver.Chrome()
-driver.get('https://login.wyborcza.pl/')
-input("Press Enter to continue...")
+from selenium.webdriver.chrome.options import Options
+
+chrome_options = Options()
+chrome_options.add_argument('--no-sandbox')
+chrome_options.add_argument("--headless")
+chrome_options.add_argument("user-data-dir=selenium")
+driver = webdriver.Chrome(options=chrome_options)
 
 html_parser = {
     'title': 'art-title',
@@ -41,7 +45,7 @@ def get_article_data(link):
             else:
                 data[key] = soup.find(class_=value).text.replace('\n',"").strip()
         except:
-            print(f"Key: {key} not found in {link}")
+            pass
     return data
 
 def process_page(link_page):
@@ -65,7 +69,7 @@ else:
 
 with open(csv_file, 'a', newline='') as file:
     writer = csv.writer(file)
-    for page in tqdm(range(10)):
+    for page in tqdm(range(10223)):
         link_page = f'https://classic.wyborcza.pl/archiwumGW/0,160510.html?searchForm=&datePeriod=0&initDate=2019-01-01&endDate=2023-01-01&publicationsString=1%3B5&author=&page={page}&sort=OLDEST'
         data_list = process_page(link_page)
         for data in data_list:
