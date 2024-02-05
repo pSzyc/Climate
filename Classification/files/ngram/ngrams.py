@@ -5,7 +5,7 @@ from pathlib import Path
 from collections import defaultdict
 
 nlp = spacy.load('pl_core_news_sm')
-files_path = Path("../../files")
+files_path = Path("..")
 stopwords = pd.read_csv(files_path / 'polish_stopwords.txt', header=None)
 STOPWORDS = set([word.rstrip() for word in stopwords[0]])
 REPLACE_BY_SPACE_RE = re.compile('[/(){}\[\]\|@,;\.]')
@@ -60,12 +60,8 @@ def ngram_counter(ngram, df):
 
 
 def get_eco_vocab():
-    df_1 =pd.read_csv(files_path/ "ngram/unigrams.csv")
-    df_2 =pd.read_csv(files_path/ "ngram/bigrams.csv")
-    df_3 =pd.read_csv(files_path/ "ngram/trigrams.csv") 
-    df_eco = pd.concat([df_1, df_2, df_3])  
-    eco_dict = df_eco.set_index("phrase").to_dict()['count']
-    return  dict(zip(list(eco_dict.keys()), range(len(eco_dict.keys()))))
+    df = pd.read_csv(files_path / "ngram" / "ngrams.csv")
+    return df['phrase'].values
 
 def save_rest_ngrams(df, n = 400, file = "rest"):
     df_eco_unigrams = ngram_counter(1, df)
@@ -73,6 +69,6 @@ def save_rest_ngrams(df, n = 400, file = "rest"):
     df_eco_trigrams = ngram_counter(3, df)
     eco_vocab = get_eco_vocab()
 
-    df_eco_unigrams[~df_eco_unigrams[0].isin(eco_vocab.keys())].iloc[:n].to_csv(files_path/ f"ngram/uni_{file}.csv", index = False)
-    df_eco_bigrams[~df_eco_bigrams[0].isin(eco_vocab.keys())].iloc[:n].to_csv(files_path/ f"ngram/bi_{file}.csv", index = False)
-    df_eco_trigrams[~df_eco_trigrams[0].isin(eco_vocab.keys())].iloc[:n].to_csv(files_path/ f"ngram/tri_{file}.csv", index = False)
+    df_eco_unigrams[~df_eco_unigrams[0].isin(eco_vocab)].iloc[:n].to_csv(files_path/ f"ngram/uni_{file}.csv", index = False)
+    df_eco_bigrams[~df_eco_bigrams[0].isin(eco_vocab)].iloc[:n].to_csv(files_path/ f"ngram/bi_{file}.csv", index = False)
+    df_eco_trigrams[~df_eco_trigrams[0].isin(eco_vocab)].iloc[:n].to_csv(files_path/ f"ngram/tri_{file}.csv", index = False)
