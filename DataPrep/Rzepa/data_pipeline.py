@@ -33,7 +33,7 @@ def dot_problem_solver(text):
 
 def data_pipeline(data, cols):
     data = data[data['text'].notna()]
-    data.loc[~data['title'].apply(lambda x: isinstance(x, str)), 'title'] = "None"  # newsweek
+    #data.loc[~data['title'].apply(lambda x: isinstance(x, str)), 'title'] = "None"  # newsweek
 
     for col in cols:
         data[col] = data[col].fillna('None')
