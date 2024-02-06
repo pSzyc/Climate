@@ -74,10 +74,14 @@ if __name__ == '__main__':
 
     with open(csv_file, 'a', newline='') as file:
         writer = csv.writer(file)
-        for page in tqdm(range(2000)):
+        page = 0
+        for page in tqdm(range(4930)):
             driver = webdriver.Chrome(options=chrome_options)
-            link_page = f'https://classic.wyborcza.pl/archiwumGW/0,160510.html?searchForm=&datePeriod=0&initDate=2015-01-01&endDate=2016-01-01&publicationsString=1%3B5&author=&page={page}&sort=OLDEST'
+            link_page = f'https://classic.wyborcza.pl/archiwumGW/0,160510.html?searchForm=&datePeriod=0&initDate=2020-10-5&endDate=2022-12-31&publicationsString=1%3B5&author=&page={page}&sort=OLDEST'
             data_list = process_page(link_page, driver=driver)
+            if len(data_list) == 0:
+                print(f"No more articles found on page {page}")
+                break
             for data in data_list:
                 writer.writerow([data['title'], data['department'], data['author'], data['date'], data['text'], data['link']])    
             driver.quit()
