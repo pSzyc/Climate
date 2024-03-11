@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize
 import pandas as pd
-import seaborn as sns
 import numpy as np; np.random.seed(1)
 import sys
 
