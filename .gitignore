@@ -5,3 +5,5 @@
 selenium
 *.joblib
 *.xlsx
+plots
+*.zip
