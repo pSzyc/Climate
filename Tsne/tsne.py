@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize
 import pandas as pd
-import numpy as np; np.random.seed(1)
+import numpy as np
+np.random.seed(1)
 import sys
 
 file = sys.argv[1]
@@ -16,8 +17,10 @@ cmap = plt.cm.brg
 
 fig,ax = plt.subplots()
 fig.set_size_inches(80,80)
-print(norm)
-sc = plt.scatter(x,y,c=c, norm=norm, cmap=cmap, s=15)
+sc = plt.scatter(x,y,c=c, norm=norm, cmap=cmap, s=15, alpha=0.5)
+
+legend = [sc.legend_elements()[0], ['Pozostałe artykuły', 'Artykuły związane z klimatem']]
+plt.legend(*legend)
 
 annot = ax.annotate("", xy=(0,0), xytext=(20,20),textcoords="offset points",
                     bbox=dict(boxstyle="round", fc="w"),
@@ -52,4 +55,6 @@ def hover(event):
                 fig.canvas.draw_idle()
 
 fig.canvas.mpl_connect("motion_notify_event", hover)
+plt.xlabel("t-SNE wymiar x")
+plt.ylabel("t-SNE wymiar y")
 plt.show()
