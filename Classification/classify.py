@@ -7,6 +7,7 @@ from resources.setup import get_setup
 from resources.model import Model, chunk_it_predictions
 from resources.get_data import get_current_data, make_dataset
 from functools import reduce
+import re
 
 def data_pipeline(corpus): 
     # setup
@@ -29,9 +30,19 @@ def data_pipeline(corpus):
     df_rest = df_rest[~df_rest.index.isin(df_eco.index)]
     return df_rest, df_eco
 
+
+def phrases_of_interest(df, regex):
+    IsPresent = df.clean_text.apply(lambda x: True if re.search(regex, x) is not None else False)
+    return IsPresent
+
 def eco_selector(df, main=True):
     df['klimat_count'] = df['ngram_sum'] * df['klimat']
+    condition_list_0 = [
+        phrases_of_interest(df, r'zmian[^ ]*\s+klimat'),
+        phrases_of_interest(df, r'globaln[^ ]*\s+ociepleni')
+    ]    
     if main:
+
         condition_list_1 = [
             df['ngram_sum_squared_to_total'] > 0.75,
             df['proba'] > 0.5,
@@ -63,7 +74,7 @@ def eco_selector(df, main=True):
             df['proba'] > 0.9,
             df['klimat_count'] > 0,
         ]
-        conditions_all = [condition_list_1, condition_list_2, condition_list_3, condition_list_4,condition_list_5, condition_list_6]
+        conditions_all = [condition_list_0, condition_list_1, condition_list_2, condition_list_3, condition_list_4,condition_list_5, condition_list_6]
     else:
         condition_list_1 = [
             (df['weak_count'] < 0.5),
@@ -83,29 +94,9 @@ def eco_selector(df, main=True):
             (df['weak_count'] < 0.66),
             (df['num_words'] > 3)
         ]
-        conditions_all = [condition_list_1, condition_list_2, condition_list_3, condition_list_4]
+        conditions_all = [condition_list_0, condition_list_1, condition_list_2, condition_list_3, condition_list_4]
     selector = lambda c_list: reduce(lambda x, y: x & y, c_list)
     mask_maker = lambda conditions_list: reduce(lambda x, y: selector(x) | selector(y), conditions_list)
     mask = mask_maker(conditions_all)
     print(len(df), len(df[mask]))
     return df[mask]
-
-def filter_by_conditions(df, condition_list):
-    condition_list.append(df['Rank'].isna())
-    selection_mask = reduce(lambda x, y: x & y, condition_list)
-    df.loc[selection_mask, 'Rank'] = 'Test'
-    print(len(df[selection_mask]))
-    if len(df[selection_mask]) > 100:
-        print('Saving')
-        df[selection_mask].sample(100).to_csv("data_test.csv")
-    else:
-        df[selection_mask].to_csv("data_test.csv")
-    return df
-
-def approve(df, name):
-    df.loc[df['Rank'] == 'Test', 'Rank'] = name
-    return df
-
-def restore(df):
-    df.loc[df['Rank'] == 'Test', 'Rank'] = None
-    return df

@@ -9,17 +9,6 @@ def get_current_data(configuration):
     df_rest = pd.read_csv(drive_path / corpus / "results.csv", index_col = ['id', 'source'], parse_dates=['date'])
     df_eco['label'] = 1
     df_non_eco['label'] = 0
-    df_eco = df_eco.fillna("None")
-    df_non_eco = df_non_eco.fillna("None")
-    df_rest = df_rest.fillna("None")
-    if corpus in ['newsweek', 'wprost']:
-        df_eco = df_eco.rename(columns={"author 1": 'author'})
-        df_non_eco = df_non_eco.rename(columns={"author 1": 'author'})
-        df_rest = df_rest.rename(columns={"author 1": 'author'})
-    df_eco = validate(df_eco)
-    df_non_eco = validate(df_non_eco)
-    df_rest = validate(df_rest)
-
     return df_eco, df_non_eco, df_rest
 
 def make_dataset(configuration, df_eco, df_non_eco):
@@ -35,9 +24,4 @@ def make_dataset(configuration, df_eco, df_non_eco):
         df_non_eco_rzepa['label'] = 0
         df_eco_rzepa = df_eco_rzepa.sample(2000)
         df = pd.concat([df_eco, df_eco, df_non_eco, df_non_eco, df_eco_rzepa, df_non_eco_rzepa])
-    df = validate(df)
-    return df
-
-def validate(df):
-    df = df.drop_duplicates(subset='text')
     return df

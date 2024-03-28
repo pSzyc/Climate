@@ -87,10 +87,4 @@ def vectorize_dataset(configuration, df):
 def preprocess(configuration, df):
   STOPWORDS = configuration.STOPWORDS
   df = meta_features(df, STOPWORDS)
-  
-  try:
-    df['year'] = df.date.dt.year.astype(str)
-  except:
-    df['year'] = 'None'
-
   return df
